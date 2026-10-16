@@ -124,6 +124,7 @@ table.data td.txt { font-family: inherit; text-align: left; }
 .zsub { font-size: 0.76rem; color: var(--text-3); margin-top: 2px; line-height: 1.2; }
 table.data tbody tr:hover { background: var(--surface-2); }
 table.data tbody tr.clickable { cursor: pointer; }
+table.data tbody tr.active { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
 .num { font-family: var(--mono); }
 .up { color: var(--up); }
 .down { color: var(--down); }

@@ -183,6 +183,18 @@ export const StockView = defineComponent({
     const regimeClass = (s) => (s === 'bull' ? 'up' : s === 'bear' ? 'down' : 'flat');
     /** 觸發台狀態 → 中文（供標籤顯示） */
     const triggerStateText = (s) => (s === 'triggered' ? '已觸發' : s === 'watch' ? '接近門檻' : s === 'pending' ? '待接入' : '正常');
+    /** P3 · 基本面引擎：資格 Gate / 財報窗口 / 倉位矩陣 */
+    const fundamentalGate = computed(() => an.value?.fundamentalGate ?? null);
+    const earningsWindow = computed(() => an.value?.earningsWindow ?? null);
+    const positionMatrix = computed(() => an.value?.positionMatrix ?? null);
+    /** Gate 單項狀態 → 色調 class */
+    const gateStateClass = (s) => (s === 'pass' ? 'up' : s === 'warn' ? 'warn' : s === 'fail' ? 'down' : 'flat');
+    const gateStateText = (s) => (s === 'pass' ? '合格' : s === 'warn' ? '偏弱' : s === 'fail' ? '不合格' : '無資料');
+    /** Gate 整體狀態 → 色調 class */
+    const gateClass = (s) => (s === 'pass' ? 'up' : s === 'watch' ? 'warn' : s === 'fail' ? 'down' : 'flat');
+    /** 財報窗口狀態 → 色調 class */
+    const windowStateClass = (s) => (s === 'reduce' ? 'warn' : s === 'just_reported' ? 'up' : 'flat');
+    const windowStateText = (s) => (s === 'reduce' ? '減權期' : s === 'just_reported' ? '剛公佈' : '平穩期');
     const tfRows = computed(() => (timeframes.value ? [timeframes.value.day, timeframes.value.week, timeframes.value.month].filter(Boolean) : []));
     /** 級別環境狀態 → 色調 class（多頭=up 紅 / 空頭=down 綠 / 盤整=flat） */
     const tfClass = (s) => (s === 'bull' ? 'up' : s === 'bear' ? 'down' : 'flat');
@@ -276,6 +288,7 @@ export const StockView = defineComponent({
       riskData, equity, heat, dailyHist, monthlyChart, compareEquity, heatTone, flowTone, flowText,
       sellLadder, timeframes, divergencesData, tfRows, tfClass, tfColor, ladderClass,
       regime, applicability, triggers, regimeClass, triggerStateText,
+      fundamentalGate, earningsWindow, positionMatrix, gateStateClass, gateStateText, gateClass, windowStateClass, windowStateText,
       showAddPos, newPos, addPosition, addAlert, inWatch, store,
       an, anLoading, anError, anTab, indRows, maRows, verdict, factors, factorSummary, layers, techSignals, verdictTone,
       isLive, liveAt, refreshLive, openReport,
@@ -494,6 +507,68 @@ export const StockView = defineComponent({
             </tbody>
           </table>
           <div class="section-note">{{ triggers.summary }}</div>
+        </div>
+      </div>
+
+      <div class="card" v-if="fundamentalGate">
+        <div class="card-head">
+          <div class="card-title">基本面資格紅綠燈</div>
+          <div class="card-sub">進場前的資格審查（Yahoo 快照）</div>
+          <div class="spacer"></div>
+          <span class="tag" :class="gateClass(fundamentalGate.status)">{{ fundamentalGate.label }}</span>
+        </div>
+        <div class="card-body">
+          <table class="data">
+            <thead><tr><th class="txt">門檻</th><th class="txt">數值</th><th class="txt">狀態</th></tr></thead>
+            <tbody>
+              <tr v-for="c in fundamentalGate.checks" :key="c.id">
+                <td class="txt">{{ c.label }}</td>
+                <td class="txt">{{ c.display }}</td>
+                <td class="txt"><span class="tag" :class="gateStateClass(c.state)">{{ gateStateText(c.state) }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="section-note">{{ fundamentalGate.summary }}</div>
+        </div>
+      </div>
+
+      <div class="card" v-if="earningsWindow">
+        <div class="card-head">
+          <div class="card-title">財報窗口 · 減權期</div>
+          <div class="card-sub">{{ earningsWindow.periodType }}（預估公告期）</div>
+          <div class="spacer"></div>
+          <span class="tag" :class="windowStateClass(earningsWindow.status)">{{ windowStateText(earningsWindow.status) }}</span>
+        </div>
+        <div class="card-body">
+          <div class="kv">
+            <div class="kv-item"><div class="kv-k">預估公告日</div><div class="kv-v">{{ earningsWindow.estimatedDate }}</div></div>
+            <div class="kv-item"><div class="kv-k">距離業績</div><div class="kv-v">{{ earningsWindow.daysToReport }} 天</div></div>
+            <div class="kv-item"><div class="kv-k">精確公告日</div><div class="kv-v small">{{ earningsWindow.preciseSource }}</div></div>
+          </div>
+          <div class="section-note">{{ earningsWindow.statusLabel }} ｜ {{ earningsWindow.windowNote }}</div>
+        </div>
+      </div>
+
+      <div class="card" v-if="positionMatrix">
+        <div class="card-head">
+          <div class="card-title">倉位建議矩陣（三市況應對）</div>
+          <div class="card-sub">靜態框架 · 高亮當前市況</div>
+        </div>
+        <div class="card-body">
+          <table class="data">
+            <thead><tr><th class="txt">市況</th><th class="txt">倉位區間</th><th class="txt">持股週期</th><th class="txt">止蝕寬鬆度</th><th class="txt">份數</th><th class="txt">策略</th></tr></thead>
+            <tbody>
+              <tr v-for="r in positionMatrix.rows" :key="r.key" :class="{ active: r.active }">
+                <td class="txt"><span class="tag" :class="regimeClass(r.key)">{{ r.regimeLabel }}</span></td>
+                <td class="txt">{{ r.positionRange }}</td>
+                <td class="txt small">{{ r.holdPeriod }}</td>
+                <td class="txt">{{ r.stopWidth }}</td>
+                <td class="txt">{{ r.portions }}</td>
+                <td class="txt small">{{ r.strategy }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="section-note">{{ positionMatrix.note }}</div>
         </div>
       </div>
 

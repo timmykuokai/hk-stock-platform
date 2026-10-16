@@ -120,6 +120,7 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
   const { computeMetrics } = await import('../data/metrics.js');
   const { buildRisk, buildEquity, buildAttentionLite, buildRelativeStrength, buildSellLadder, buildTimeframes, detectDivergence } = await import('../engine/chartData.js');
   const { buildRegime, buildApplicability, buildTriggers } = await import('../engine/regime.js');
+  const { buildFundamentalGate, buildEarningsWindow, buildPositionMatrix } = await import('../engine/fundamental.js');
   const metrics = computeMetrics({ bars: chart.bars, dividends: chart.dividends, fundamentals: fund, bench });
   const indicators = computeIndicators(chart.bars, { seriesLen: withSeries ? 250 : 0 });
   if (!indicators) return res.status(400).json({ error: '歷史資料不足，無法計算技術指標（需 ≥30 根日 K）' });
@@ -130,6 +131,7 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
   // 圖表衍生資料（失敗絕不阻塞主分析響應）
   let risk = null, equity = null, heat = null, rs = null, ladder = null, timeframes = null, divergences = null;
   let regime = null, applicability = null, triggers = null;
+  let fundamentalGate = null, earningsWindow = null, positionMatrix = null;
   try {
     risk = buildRisk(indicators.series, chart.bars);
     equity = buildEquity(indicators.series, bench);
@@ -142,6 +144,10 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
     regime = buildRegime({ bars: chart.bars, bench, latest: indicators.latest });
     applicability = buildApplicability(regime?.regime);
     triggers = buildTriggers({ bars: chart.bars, latest: indicators.latest, bench });
+    // P3 · 基本面引擎 → 資格 Gate / 財報窗口 / 倉位矩陣
+    fundamentalGate = buildFundamentalGate(fund, metrics);
+    earningsWindow = buildEarningsWindow();
+    positionMatrix = buildPositionMatrix(regime?.regime);
   } catch (e) {
     log.warn(TAG, '圖表衍生資料組裝失敗', e.message);
   }
@@ -178,6 +184,9 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
     regime,
     applicability,
     triggers,
+    fundamentalGate,
+    earningsWindow,
+    positionMatrix,
     _degraded: dg.degraded ? dg.items : undefined,
   });
 }));
