@@ -160,6 +160,98 @@ table.data tbody tr.active { background: var(--surface-2); box-shadow: inset 3px
 .matrix .tone-neutral { background: var(--bg-soft); }
 .matrix .tone-sell    { background: var(--up-soft); }
 
+/* ===== P4 图表演读面板 ===== */
+.chart-info-panel {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.chart-info-summary {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--bg-soft);
+  list-style: none;
+}
+.chart-info-summary::-webkit-details-marker { display: none; }
+.chart-info-summary::before { content: '▶ '; font-size: 10px; }
+.chart-info-panel[open] > .chart-info-summary::before { content: '▼ '; }
+.chart-info-content { padding: 10px 12px; }
+.chart-info-desc {
+  font-size: 12.5px;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.chart-info-section { margin-bottom: 10px; }
+.chart-info-section > strong {
+  font-size: 12px;
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+}
+.chart-legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.chart-legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.chart-legend-list li i {
+  display: inline-block;
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.interpretation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.interpretation-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-2);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.interpretation-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.4;
+}
+.interpretation-table tr:last-child td { border-bottom: none; }
+.interpretation-table td:first-child { color: var(--text); font-weight: 500; }
+.chart-info-note {
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 6px 8px;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  line-height: 1.5;
+}
+.tag.up { background: var(--up-soft); color: var(--up); }
+.tag.down { background: var(--down-soft); color: var(--down); }
+.tag.warn { background: var(--warn-soft); color: var(--warn); }
+
 .up { color: var(--up); }
 .down { color: var(--down); }
 .muted { color: var(--text-3); }

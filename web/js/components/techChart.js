@@ -7,8 +7,9 @@
  *   RsiChart       : RSI(14) 與 70/30 超買超賣帶
  * 所有序列皆由傳入的 bars（OHLCV）即時計算，後端無需改動。
  */
-import { defineComponent, computed } from '../../vendor/vue.esm-browser.prod.js';
+import { defineComponent, computed, ref } from '../../vendor/vue.esm-browser.prod.js';
 import { fmtPrice } from '../format.js';
+import { getChartInfo } from './chartInfo.js';
 
 const UP = '#d9333f';     // 漲：紅
 const DOWN = '#0f9960';   // 跌：綠
@@ -142,7 +143,17 @@ export const BollingerChart = defineComponent({
         lowerP: linePath(lower, g),
       };
     });
-    return { box, W: 900, fmtPrice };
+    const showInfo = ref(false);
+    const info = getChartInfo('bollinger');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -163,6 +174,37 @@ export const BollingerChart = defineComponent({
       <span><i style="background:#9333ea"></i>上下軌 ±2σ</span>
       <span class="muted">價格觸及上軌偏熱、下軌偏冷</span>
     </div>
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -188,7 +230,17 @@ export const MaChart = defineComponent({
         maPaths: mas.map((m) => linePath(m, g)),
       };
     });
-    return { box, W: 900, fmtPrice, periods, colors };
+    const showInfo = ref(false);
+    const info = getChartInfo('ma');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -231,7 +283,17 @@ export const VolumeChart = defineComponent({
       });
       return { ...g, barsRect, max };
     });
-    return { box, W: 900, fmtCompact: (x) => (x >= 1e8 ? (x / 1e8).toFixed(2) + '億' : x >= 1e4 ? (x / 1e4).toFixed(1) + '萬' : Math.round(x)) };
+    const showInfo = ref(false);
+    const info = getChartInfo('volume');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -247,6 +309,37 @@ export const VolumeChart = defineComponent({
       <span><i :style="{background:DOWN}"></i>下跌日成交量</span>
       <span class="muted">放量突破／縮量盤整為常見訊號</span>
     </div>
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -274,7 +367,17 @@ export const MacdChart = defineComponent({
         deaP: linePath(dea, g),
       };
     });
-    return { box, W: 900, fmt2: (v) => (v == null ? '—' : v.toFixed(3)) };
+    const showInfo = ref(false);
+    const info = getChartInfo('macd');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -313,7 +416,17 @@ export const RsiChart = defineComponent({
       if (!g) return null;
       return { ...g, rsiP: linePath(r, g) };
     });
-    return { box, W: 900 };
+    const showInfo = ref(false);
+    const info = getChartInfo('rsi');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -352,7 +465,17 @@ export const KdChart = defineComponent({
       if (!g) return null;
       return { ...g, kP: linePath(k, g), dP: linePath(dd, g) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('kd');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -367,6 +490,38 @@ export const KdChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#1f5eff"></i>K</span><span><i style="background:#f59e0b"></i>D</span><span class="muted">80 超買／20 超賣，低位黃金交叉偏多</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -403,7 +558,17 @@ export const ObvChart = defineComponent({
       }).filter(Boolean);
       return { ...g, vP: linePath(v, g), maP: linePath(ma, g), markers };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('obv');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -421,6 +586,38 @@ export const ObvChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#1f5eff"></i>OBV</span><span><i style="background:#f59e0b"></i>20 日均線</span><span><i style="background:#d9333f"></i>量退背離</span><span><i style="background:#0f9960"></i>底背離</span><span class="muted">價創高而 OBV 不創高＝量能撤退出貨</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -440,7 +637,17 @@ export const MfiChart = defineComponent({
       if (!g) return null;
       return { ...g, vP: linePath(v, g) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('mfi');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -454,6 +661,38 @@ export const MfiChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#7c3aed"></i>MFI(14)</span><span class="muted">80 超買／20 超賣，資金流向過熱或枯竭</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -473,7 +712,17 @@ export const AdxChart = defineComponent({
       if (!g) return null;
       return { ...g, vP: linePath(v, g), refY: g.yOf(25) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('adx');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -486,6 +735,38 @@ export const AdxChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#1f5eff"></i>ADX(14)</span><span class="muted">＞25 趨勢明確，＜20 盤整（只看強度，不判多空）</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -505,7 +786,17 @@ export const CciChart = defineComponent({
       if (!g) return null;
       return { ...g, vP: linePath(v, g), upY: g.yOf(100), dnY: g.yOf(-100) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('cci');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -519,6 +810,38 @@ export const CciChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#9333ea"></i>CCI(14)</span><span class="muted">＋100 超買／－100 超賣，突破常為趨勢啟動</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -538,7 +861,17 @@ export const BiasChart = defineComponent({
       if (!g) return null;
       return { ...g, p6: linePath(b6, g), p12: linePath(b12, g), p24: linePath(b24, g) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('bias');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -553,6 +886,38 @@ export const BiasChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#f59e0b"></i>BIAS(6)</span><span><i style="background:#1f5eff"></i>BIAS(12)</span><span><i style="background:#9333ea"></i>BIAS(24)</span><span class="muted">正乖離過大易回檔，負乖離過大易反彈</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -575,7 +940,17 @@ export const DrawdownChart = defineComponent({
       area += 'L' + g.xOf(v.length - 1).toFixed(1) + ',' + g.yOf(0).toFixed(1) + ' Z';
       return { ...g, area, lineP: linePath(v, g) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('drawdown');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -588,6 +963,38 @@ export const DrawdownChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#d9333f"></i>回撤（水下曲線）</span><span class="muted">0% 為歷史高點，向下為最大回撤，越深風險越大</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -612,7 +1019,17 @@ export const AtrChart = defineComponent({
       const pct = lastAtr != null && lastClose ? (lastAtr / lastClose) * 100 : null;
       return { ...g, atrP: linePath(atr, g), lastAtr, pct };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('atr');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -625,6 +1042,38 @@ export const AtrChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#0ea5e9"></i>ATR 平均真實波幅</span><span class="muted">波動越大數值越高，常作停損與部位規模參考</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
@@ -654,7 +1103,17 @@ export const DonchianChart = defineComponent({
       if (!g) return null;
       return { ...g, upP: linePath(up, g), dnP: linePath(dn, g), closeP: linePath(close, g), band: bandPath(up, dn, g) };
     });
-    return { box, W };
+    const showInfo = ref(false);
+    const info = getChartInfo('donchian');
+    
+    const signalClass = (s) => {
+      if (!s) return '';
+      if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
+      if (s.includes('超卖') || s.includes('弱势') || s.includes('卖出') || s.includes('向下') || s.includes('偏弱')) return 'down';
+      if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
+      return '';
+    };
+    
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -669,6 +1128,38 @@ export const DonchianChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px"><span><i style="background:#1f5eff"></i>收盤</span><span><i style="background:#d9333f"></i>20 日高</span><span><i style="background:#0f9960"></i>20 日低</span><span class="muted">突破上軌偏強、跌破下軌偏弱（海龜通道）</span></div>
+
+    <!-- 圖表解讀面板 -->
+    <details v-if="info" :open="false" class="chart-info-panel">
+      <summary class="chart-info-summary">📊 圖表解讀說明</summary>
+      <div class="chart-info-content">
+        <div class="chart-info-desc">{{ info.desc }}</div>
+        <div class="chart-info-section">
+          <strong>圖例：</strong>
+          <ul class="chart-legend-list">
+            <li v-for="(item, i) in info.legend" :key="i">
+              <i :style="{ background: item.color }"></i>
+              <span>{{ item.label }}</span>
+              <span class="muted">— {{ item.desc }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="chart-info-section">
+          <strong>數值範圍解讀：</strong>
+          <table class="data interpretation-table">
+            <thead><tr><th>數值範圍/狀態</th><th>信號</th><th>建議操作</th></tr></thead>
+            <tbody>
+              <tr v-for="(item, i) in info.interpretation" :key="i">
+                <td>{{ item.range }}</td>
+                <td><span :class="signalClass(item.signal)">{{ item.signal }}</span></td>
+                <td>{{ item.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-info-note"><strong>使用建議：</strong>{{ info.usage }}</div>
+      </div>
+    </details>
   `,
 });
 
