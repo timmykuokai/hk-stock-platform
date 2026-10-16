@@ -397,7 +397,9 @@ export const StockView = defineComponent({
           </div>
         </div>
         <div class="card-body tight">
-          <component :is="chartMap[chartTab]" v-bind="chartProps()" />
+          <div class="tech-chart-container">
+            <component :is="chartMap[chartTab]" v-bind="chartProps()" />
+          </div>
         </div>
       </div>
 

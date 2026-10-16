@@ -82,7 +82,7 @@ button { font-family: inherit; }
 .card-title { font-weight: 700; font-size: 14.5px; }
 .card-sub { font-size: 12px; color: var(--text-3); }
 .card-body { padding: 14px 16px; }
-.card-body.tight { padding: 8px 10px; }
+.card-body.tight { padding: 8px 10px; overflow: visible; }
 .spacer { flex: 1; }
 
 .btn {
@@ -166,7 +166,7 @@ table.data tbody tr.active { background: var(--surface-2); box-shadow: inset 3px
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--surface-2);
-  overflow: hidden;
+  overflow: visible;
 }
 .chart-info-summary {
   padding: 8px 12px;
@@ -364,3 +364,21 @@ table.data tbody tr.active { background: var(--surface-2); box-shadow: inset 3px
 .news-row-title { flex: 1; min-width: 0; font-size: 13px; color: var(--text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .news-row-title:hover { color: var(--accent); text-decoration: underline; }
 .news-row-meta { flex: 0 0 auto; white-space: nowrap; }
+
+/* ===== SVG 技術圖表防裁切 ===== */
+.tech-chart-container {
+  overflow: visible !important;
+  position: relative;
+}
+.tech-chart-container svg {
+  overflow: visible !important;
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.tech-chart-container svg text {
+  overflow: visible;
+}
+.tech-chart-container .axis-label {
+  overflow: visible;
+}
