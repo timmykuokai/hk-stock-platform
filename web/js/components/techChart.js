@@ -153,6 +153,7 @@ export const BollingerChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -240,6 +241,7 @@ export const MaChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -293,6 +295,7 @@ export const VolumeChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -377,6 +380,7 @@ export const MacdChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -426,6 +430,7 @@ export const RsiChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -475,6 +480,7 @@ export const KdChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -568,6 +574,7 @@ export const ObvChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -647,6 +654,7 @@ export const MfiChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -722,6 +730,7 @@ export const AdxChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -796,6 +805,7 @@ export const CciChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -871,6 +881,7 @@ export const BiasChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -950,6 +961,7 @@ export const DrawdownChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -1029,6 +1041,7 @@ export const AtrChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
@@ -1113,6 +1126,7 @@ export const DonchianChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
+    return { box, info, signalClass, fmtPrice };
     
   },
   template: `
