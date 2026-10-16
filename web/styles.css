@@ -126,6 +126,40 @@ table.data tbody tr:hover { background: var(--surface-2); }
 table.data tbody tr.clickable { cursor: pointer; }
 table.data tbody tr.active { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
 .num { font-family: var(--mono); }
+
+/* ===== P4 估值分位帶 ===== */
+.tag.val-cheap { background: var(--down-soft); color: var(--down); }
+.tag.val-fair  { background: var(--bg-soft); color: var(--text-2); }
+.tag.val-exp   { background: var(--up-soft); color: var(--up); }
+.val-block { margin-bottom: 14px; }
+.val-block:last-child { margin-bottom: 0; }
+.val-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.val-name { font-weight: 600; font-size: 13px; }
+.val-cur { font-family: var(--mono); font-size: 13px; }
+.val-pct { font-size: 12px; color: var(--text-2); }
+.val-pct b { font-family: var(--mono); }
+.band { position: relative; height: 16px; background: var(--bg-soft); border-radius: 8px; overflow: hidden; }
+.band-fair { position: absolute; top: 0; bottom: 0; left: 30%; width: 40%; background: var(--accent-soft); opacity: .7; }
+.band-cur { position: absolute; top: -2px; width: 3px; height: 20px; background: var(--text); border-radius: 2px; transform: translateX(-1px); }
+.band-cur::after { content: ''; position: absolute; left: 50%; top: -3px; width: 9px; height: 9px; background: var(--text); border-radius: 50%; transform: translateX(-50%); }
+.band-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-3); margin-top: 2px; font-family: var(--mono); }
+.band-vals { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; }
+.band-vals span { font-size: 11px; color: var(--text-2); font-family: var(--mono); }
+
+/* ===== P4 RSI×估值 決策矩陣 ===== */
+.matrix { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.matrix th, .matrix td { border: 1px solid var(--border); padding: 8px 8px; text-align: center; font-size: 12px; vertical-align: middle; }
+.matrix th { background: var(--surface-2); color: var(--text-2); font-weight: 600; }
+.matrix td.rowhead { background: var(--surface-2); color: var(--text-2); font-weight: 600; text-align: left; white-space: nowrap; }
+.matrix td.cell { cursor: default; }
+.matrix td.active { outline: 3px solid var(--accent); outline-offset: -3px; }
+.matrix td.cell strong { display: block; font-size: 11.5px; margin-bottom: 3px; }
+.matrix .tone-strong  { background: var(--down-soft); }
+.matrix .tone-watch   { background: var(--warn-soft); }
+.matrix .tone-caution { background: #fdecee; }
+.matrix .tone-neutral { background: var(--bg-soft); }
+.matrix .tone-sell    { background: var(--up-soft); }
+
 .up { color: var(--up); }
 .down { color: var(--down); }
 .muted { color: var(--text-3); }

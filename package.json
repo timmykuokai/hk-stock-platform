@@ -9,11 +9,13 @@
     "test": "node --test scripts/test-core.mjs",
     "test:regime": "node --test scripts/test-regime.mjs",
     "test:fundamental": "node --test scripts/test-fundamental.mjs",
+    "test:valuation": "node --test scripts/test-valuation.mjs",
     "smoke": "node scripts/smoke.mjs",
     "check-ui": "node scripts/check-ui.mjs",
     "check-p1": "node scripts/check-p1.mjs",
     "check-p2": "node scripts/check-p2.mjs",
     "check-p3": "node scripts/check-p3.mjs",
+    "check-p4": "node scripts/check-p4.mjs",
     "enrich-names": "node scripts/enrich-names.mjs"
   },
   "keywords": ["hong-kong", "stock", "screener", "backtest", "dashboard"],

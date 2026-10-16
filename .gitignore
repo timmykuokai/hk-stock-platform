@@ -14,3 +14,8 @@ Thumbs.db
 
 # 防禦性：工作區記憶（位於專案外層，此行僅作保險）
 .workbuddy/
+
+# 伺服端資料快取（由 Yahoo/etnet 抓取產出，運行時生成）
+server/data/.cache/
+server/data/store/news-cache/
+server/data/store/snapshots/

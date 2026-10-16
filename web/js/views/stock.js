@@ -187,6 +187,12 @@ export const StockView = defineComponent({
     const fundamentalGate = computed(() => an.value?.fundamentalGate ?? null);
     const earningsWindow = computed(() => an.value?.earningsWindow ?? null);
     const positionMatrix = computed(() => an.value?.positionMatrix ?? null);
+    /** P4 · 估值引擎：PE/PB 分位帶 + RSI×估值 決策矩陣 */
+    const valuationBands = computed(() => an.value?.valuationBands ?? null);
+    const rsiValuation = computed(() => an.value?.rsiValuation ?? null);
+    /** 估值狀態 → 色調 class（偏低=綠 / 合理=中性 / 偏高=紅） */
+    const valClass = (s) => (s === 'cheap' ? 'val-cheap' : s === 'expensive' ? 'val-exp' : 'val-fair');
+    const valStateText = (s) => (s === 'cheap' ? '估值偏低' : s === 'expensive' ? '估值偏高' : s === 'fair' ? '估值合理' : '資料不足');
     /** Gate 單項狀態 → 色調 class */
     const gateStateClass = (s) => (s === 'pass' ? 'up' : s === 'warn' ? 'warn' : s === 'fail' ? 'down' : 'flat');
     const gateStateText = (s) => (s === 'pass' ? '合格' : s === 'warn' ? '偏弱' : s === 'fail' ? '不合格' : '無資料');
@@ -289,6 +295,7 @@ export const StockView = defineComponent({
       sellLadder, timeframes, divergencesData, tfRows, tfClass, tfColor, ladderClass,
       regime, applicability, triggers, regimeClass, triggerStateText,
       fundamentalGate, earningsWindow, positionMatrix, gateStateClass, gateStateText, gateClass, windowStateClass, windowStateText,
+      valuationBands, rsiValuation, valClass, valStateText,
       showAddPos, newPos, addPosition, addAlert, inWatch, store,
       an, anLoading, anError, anTab, indRows, maRows, verdict, factors, factorSummary, layers, techSignals, verdictTone,
       isLive, liveAt, refreshLive, openReport,
@@ -569,6 +576,88 @@ export const StockView = defineComponent({
             </tbody>
           </table>
           <div class="section-note">{{ positionMatrix.note }}</div>
+        </div>
+      </div>
+
+      <div class="card" v-if="valuationBands && (valuationBands.pe || valuationBands.pb)">
+        <div class="card-head">
+          <div class="card-title">估值分位帶（PE / PB）</div>
+          <div class="card-sub">自身歷史分位 · 近似法</div>
+        </div>
+        <div class="card-body">
+          <div class="val-block" v-if="valuationBands.pe">
+            <div class="val-head">
+              <span class="tag" :class="valClass(valuationBands.pe.state)">{{ valStateText(valuationBands.pe.state) }}</span>
+              <span class="val-name">PE (TTM)</span>
+              <span class="val-cur">{{ valuationBands.pe.current }}×</span>
+              <span class="val-pct">分位 <b>{{ valuationBands.pe.percentile }}%</b></span>
+            </div>
+            <div class="band">
+              <div class="band-fair"></div>
+              <div class="band-cur" :style="{ left: (valuationBands.pe.percentile || 0) + '%' }"></div>
+            </div>
+            <div class="band-axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+            <div class="band-vals">
+              <span>10分位 {{ valuationBands.pe.bands.p10 }}</span>
+              <span>25分位 {{ valuationBands.pe.bands.p25 }}</span>
+              <span>中位 {{ valuationBands.pe.bands.p50 }}</span>
+              <span>75分位 {{ valuationBands.pe.bands.p75 }}</span>
+              <span>90分位 {{ valuationBands.pe.bands.p90 }}</span>
+            </div>
+          </div>
+
+          <div class="val-block" v-if="valuationBands.pb">
+            <div class="val-head">
+              <span class="tag" :class="valClass(valuationBands.pb.state)">{{ valStateText(valuationBands.pb.state) }}</span>
+              <span class="val-name">PB</span>
+              <span class="val-cur">{{ valuationBands.pb.current }}×</span>
+              <span class="val-pct">分位 <b>{{ valuationBands.pb.percentile }}%</b></span>
+            </div>
+            <div class="band">
+              <div class="band-fair"></div>
+              <div class="band-cur" :style="{ left: (valuationBands.pb.percentile || 0) + '%' }"></div>
+            </div>
+            <div class="band-axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+            <div class="band-vals">
+              <span>10分位 {{ valuationBands.pb.bands.p10 }}</span>
+              <span>25分位 {{ valuationBands.pb.bands.p25 }}</span>
+              <span>中位 {{ valuationBands.pb.bands.p50 }}</span>
+              <span>75分位 {{ valuationBands.pb.bands.p75 }}</span>
+              <span>90分位 {{ valuationBands.pb.bands.p90 }}</span>
+            </div>
+          </div>
+
+          <div class="section-note" v-if="valuationBands.window">
+            分位計算區間：{{ valuationBands.window.bars }} 根日 K（約 {{ valuationBands.window.years }} 年）｜ {{ valuationBands.note }}
+          </div>
+        </div>
+      </div>
+
+      <div class="card" v-if="rsiValuation">
+        <div class="card-head">
+          <div class="card-title">RSI × 估值 決策矩陣</div>
+          <div class="card-sub">RSI(14) {{ rsiValuation.rsi }} · {{ valStateText(rsiValuation.valuationState) }}</div>
+        </div>
+        <div class="card-body">
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th>估值 ＼ RSI</th>
+                <th v-for="c in rsiValuation.rsiCols" :key="c.key">{{ c.label }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in rsiValuation.cells" :key="row.valKey">
+                <td class="rowhead">{{ row.valLabel }}</td>
+                <td v-for="cell in row.rsi" :key="cell.rsiKey"
+                    class="cell" :class="['tone-' + cell.tone, { active: cell.active }]" :title="cell.text">
+                  <strong>{{ cell.label }}</strong>
+                  <span class="small" v-if="cell.active">{{ cell.text }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="section-note">{{ rsiValuation.recommendation }} ｜ {{ rsiValuation.note }}</div>
         </div>
       </div>
 

@@ -121,6 +121,7 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
   const { buildRisk, buildEquity, buildAttentionLite, buildRelativeStrength, buildSellLadder, buildTimeframes, detectDivergence } = await import('../engine/chartData.js');
   const { buildRegime, buildApplicability, buildTriggers } = await import('../engine/regime.js');
   const { buildFundamentalGate, buildEarningsWindow, buildPositionMatrix } = await import('../engine/fundamental.js');
+  const { buildValuationBands, buildRsiValuationMatrix } = await import('../engine/valuation.js');
   const metrics = computeMetrics({ bars: chart.bars, dividends: chart.dividends, fundamentals: fund, bench });
   const indicators = computeIndicators(chart.bars, { seriesLen: withSeries ? 250 : 0 });
   if (!indicators) return res.status(400).json({ error: '歷史資料不足，無法計算技術指標（需 ≥30 根日 K）' });
@@ -132,6 +133,7 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
   let risk = null, equity = null, heat = null, rs = null, ladder = null, timeframes = null, divergences = null;
   let regime = null, applicability = null, triggers = null;
   let fundamentalGate = null, earningsWindow = null, positionMatrix = null;
+  let valuationBands = null, rsiValuation = null;
   try {
     risk = buildRisk(indicators.series, chart.bars);
     equity = buildEquity(indicators.series, bench);
@@ -148,6 +150,10 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
     fundamentalGate = buildFundamentalGate(fund, metrics);
     earningsWindow = buildEarningsWindow();
     positionMatrix = buildPositionMatrix(regime?.regime);
+    // P4 · 估值引擎 → PE/PB 分位帶 + RSI×估值 決策矩陣
+    valuationBands = buildValuationBands(fund, chart.bars);
+    const vState = valuationBands.pe?.state || valuationBands.pb?.state || 'unknown';
+    rsiValuation = buildRsiValuationMatrix(indicators.latest.rsi14, vState, { primary: valuationBands.primary });
   } catch (e) {
     log.warn(TAG, '圖表衍生資料組裝失敗', e.message);
   }
@@ -187,6 +193,8 @@ router.get('/stock/:code/analysis', asyncHandler(async (req, res) => {
     fundamentalGate,
     earningsWindow,
     positionMatrix,
+    valuationBands,
+    rsiValuation,
     _degraded: dg.degraded ? dg.items : undefined,
   });
 }));
