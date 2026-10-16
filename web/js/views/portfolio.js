@@ -1,7 +1,7 @@
 /**
  * portfolio.js — 投資組合追蹤
  */
-import { defineComponent, ref, reactive, computed, onMounted } from '../../vendor/vue.esm-browser.prod.js';
+import { defineComponent, ref, reactive, computed, onMounted, watch } from '../../vendor/vue.esm-browser.prod.js';
 import { api, ui, withBusy } from '../api.js';
 import { fmtPrice, fmtPctRaw, fmtPct, fmtCompact, toneClass, fmtNum, fmtChg } from '../format.js';
 
@@ -14,6 +14,8 @@ export const PortfolioView = defineComponent({
     const form = reactive({ code: '', qty: 1000, cost: '', date: new Date().toISOString().slice(0, 10), note: '' });
     const editing = ref(null);
     const suggest = ref([]);
+    const stockInfo = ref(null);  // 存储股票实时价格信息
+    const fetchingInfo = ref(false);  // 是否正在获取价格信息
 
     async function load() {
       loading.value = true;
@@ -27,10 +29,72 @@ export const PortfolioView = defineComponent({
     }
 
     async function searchCode() {
-      if (!form.code || form.code.length < 2) { suggest.value = []; return; }
+      if (!form.code || form.code.length < 2) {
+        suggest.value = [];
+        return;
+      }
       try {
         suggest.value = (await api.search(form.code)).items ?? [];
-      } catch { suggest.value = []; }
+      } catch {
+        suggest.value = [];
+      }
+    }
+
+    // 获取股票实时价格信息
+    async function fetchStockInfo(code) {
+      if (!code || code.length < 3) {
+        stockInfo.value = null;
+        return;
+      }
+      fetchingInfo.value = true;
+      try {
+        const result = await api.stock(code, { range: '1y' });
+        if (result && result.quote) {
+          stockInfo.value = {
+            code: result.code,
+            name: result.zhName || result.name,
+            currency: result.quote.currency || 'HKD',
+            price: result.quote.price,
+            change: result.quote.change,
+            changePercent: result.quote.changePercent,
+            pe: result.quote.pe,
+            marketCap: result.quote.marketCap,
+            high52w: result.quote.fiftyTwoWeekHigh,
+            low52w: result.quote.fiftyTwoWeekLow,
+          };
+        } else {
+          stockInfo.value = null;
+        }
+      } catch (e) {
+        console.warn('获取股票信息失败:', e.message);
+        stockInfo.value = null;
+      } finally {
+        fetchingInfo.value = false;
+      }
+    }
+
+    // 监听代码输入完成，获取股票信息
+    watch(() => form.code, (newCode) => {
+      if (newCode && newCode.length >= 4) {
+        fetchStockInfo(newCode);
+      } else {
+        stockInfo.value = null;
+      }
+    });
+
+    // 从搜索结果中选择时，也获取股票信息
+    async function selectSuggestion(s) {
+      form.code = s.code;
+      suggest.value = [];
+      await fetchStockInfo(s.code);
+    }
+
+    // 一键填入成本价
+    function fillCost() {
+      if (stockInfo.value && stockInfo.value.price) {
+        form.cost = stockInfo.value.price.toFixed(2);
+        ui.notify('已填入现價', 'success');
+      }
     }
 
     async function add() {
@@ -40,7 +104,7 @@ export const PortfolioView = defineComponent({
           code: form.code, qty: Number(form.qty),
           cost: Number(form.cost || 0), date: form.date, note: form.note,
         }), '新增失敗');
-        form.code = ''; form.cost = ''; form.note = ''; suggest.value = [];
+        form.code = ''; form.cost = ''; form.note = ''; stockInfo.value = null; suggest.value = [];
         await load();
       } catch { /* handled */ }
     }
@@ -64,7 +128,7 @@ export const PortfolioView = defineComponent({
 
     onMounted(load);
 
-    return { data, loading, form, editing, suggest, summary, load, add, remove, saveEdit, searchCode,
+    return { data, loading, form, editing, suggest, stockInfo, fetchingInfo, summary, load, add, remove, saveEdit, searchCode, selectSuggestion, fillCost,
       fmtPrice, fmtPctRaw, fmtPct, fmtCompact, toneClass, fmtNum, fmtChg };
   },
   template: `
@@ -93,9 +157,9 @@ export const PortfolioView = defineComponent({
         <div class="filters">
           <label class="field" style="position:relative">
             <span>代號</span>
-            <input v-model="form.code" @input="searchCode" placeholder="00700" style="width:120px" />
+            <input v-model="form.code" @input="searchCode" placeholder="輸入代號如00700" style="width:120px" />
             <div v-if="suggest.length" class="card" style="position:absolute; top:100%; left:0; z-index:30; width:260px; box-shadow:var(--shadow-lg)">
-              <div v-for="s in suggest.slice(0,8)" :key="s.code" class="rule-row" style="cursor:pointer" @click="form.code = s.code; suggest = []">
+              <div v-for="s in suggest.slice(0,8)" :key="s.code" class="rule-row" style="cursor:pointer; padding:8px;" @click="selectSuggestion(s)">
                 <b class="mono">{{ s.code }}</b> <span class="small muted">{{ s.zh || s.name }}</span>
               </div>
             </div>
@@ -105,6 +169,65 @@ export const PortfolioView = defineComponent({
           <label class="field"><span>買入日</span><input type="date" v-model="form.date" /></label>
           <label class="field"><span>備註</span><input v-model="form.note" placeholder="選填" /></label>
           <button class="btn primary" @click="add">新增</button>
+        </div>
+
+        <!-- 股票價格預覽 -->
+        <div v-if="stockInfo || fetchingInfo" class="stock-info-preview" style="margin-top:16px; padding:12px; background:#f8f9fa; border-radius:6px; border:1px solid #e9ecef;">
+          <div v-if="fetchingInfo" class="text-center muted" style="padding:12px;">
+            <span class="spinner-border spinner-border-sm" role="status"></span> 正在獲取價格資訊...
+          </div>
+          <div v-else-if="stockInfo" class="row">
+            <div class="col-md-4">
+              <div class="stock-info-item">
+                <span class="muted small">股票名稱</span>
+                <div class="fw-bold">{{ stockInfo.name }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stock-info-item">
+                <span class="muted small">貨幣</span>
+                <div>{{ stockInfo.currency }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stock-info-item">
+                <span class="muted small">最新股價</span>
+                <div class="fw-bold fs-5">{{ fmtPrice(stockInfo.price) }}</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stock-info-item">
+                <span class="muted small">當日漲跌</span>
+                <div :class="toneClass(stockInfo.changePercent) + ' fw-bold'">
+                  {{ fmtChg(stockInfo.change) }} ({{ fmtPctRaw(stockInfo.changePercent) }})
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stock-info-item">
+                <span class="muted small">市盈率 PE</span>
+                <div>{{ stockInfo.pe ? stockInfo.pe.toFixed(2) : '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stock-info-item">
+                <span class="muted small">52週最高</span>
+                <div>{{ fmtPrice(stockInfo.high52w) }}</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stock-info-item">
+                <span class="muted small">52週最低</span>
+                <div>{{ fmtPrice(stockInfo.low52w) }}</div>
+              </div>
+            </div>
+            <div class="col-12 mt-2">
+              <button class="btn btn-sm btn-outline-primary" @click="fillCost" :disabled="!stockInfo || !stockInfo.price">
+                ⚡ 一鍵填入成本價
+              </button>
+              <span class="small muted ms-2">點擊將最新股價填入成本價欄位</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
