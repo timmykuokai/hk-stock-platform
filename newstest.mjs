@@ -1,0 +1,32 @@
+import { JSDOM } from 'jsdom';
+const BASE = 'http://localhost:8787';
+const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="app"></div></body></html>', { url: `${BASE}/`, pretendToBeVisual: true });
+const { window } = dom;
+global.window = window; global.document = window.document;
+Object.defineProperty(global, 'navigator', { value: window.navigator, configurable: true, writable: true });
+global.location = window.location; global.HTMLElement = window.HTMLElement; global.SVGElement = window.SVGElement;
+global.Element = window.Element; global.Node = window.Node; global.Event = window.Event; global.CustomEvent = window.CustomEvent;
+global.getComputedStyle = window.getComputedStyle.bind(window);
+global.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16); global.cancelAnimationFrame = (id) => clearTimeout(id);
+global.localStorage = window.localStorage;
+const ctxStub = new Proxy({}, { get: (t, k) => (k === 'canvas' ? { width: 800, height: 400 } : k === 'measureText' ? () => ({ width: 40 }) : () => undefined), set: () => true });
+window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
+const nativeFetch = globalThis.fetch;
+globalThis.fetch = (u, o) => nativeFetch(String(u).startsWith('http') ? u : `${BASE}${u}`, o); window.fetch = globalThis.fetch;
+const errors = [];
+console.error = (...a) => errors.push(a.map(String).join(' '));
+window.addEventListener('error', (e) => errors.push(`window error: ${e.message}`));
+try {
+  await import('./web/js/app.js');
+  await new Promise((r) => setTimeout(r, 3000));
+  window.location.hash = '#/news';
+  await new Promise((r) => setTimeout(r, 6000));
+  const html = document.getElementById('app').innerHTML;
+  const items = (html.match(/news-title/g) || []).length;
+  console.log('mount html len:', html.length);
+  console.log('contains 即時新聞 title:', html.includes('即時新聞'));
+  console.log('news-title anchors:', items);
+  console.log('contains 港股/美股 tabs:', html.includes('港股要聞') && html.includes('美股要聞'));
+  console.log('Vue runtime errors:', errors.length ? errors.slice(0, 3) : 'NONE');
+  console.log(errors.length === 0 && items >= 1 && html.includes('即時新聞') ? 'NEWS_VIEW_OK' : 'NEWS_VIEW_FAIL');
+} catch (e) { console.log('CRASH', e.message); }

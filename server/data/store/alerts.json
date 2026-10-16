@@ -1,0 +1,14 @@
+[
+  {
+    "id": "amudn8nw0fjba",
+    "enabled": true,
+    "createdAt": "2026-09-23T05:09:35.856Z",
+    "lastTriggered": null,
+    "code": "03328",
+    "type": "price_below",
+    "params": {
+      "threshold": 8
+    },
+    "note": ""
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "name": "hk-stock-platform",
+  "version": "1.0.0",
+  "description": "港股（香港市場）股票篩選與分析平台：即時／歷史行情、多維度篩選、評分模型、視覺化儀表板、策略回測、警報通知與投資組合追蹤",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test scripts/test-core.mjs",
+    "test:regime": "node --test scripts/test-regime.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "check-ui": "node scripts/check-ui.mjs",
+    "check-p1": "node scripts/check-p1.mjs",
+    "check-p2": "node scripts/check-p2.mjs",
+    "enrich-names": "node scripts/enrich-names.mjs"
+  },
+  "keywords": ["hong-kong", "stock", "screener", "backtest", "dashboard"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.22.3",
+    "vue": "^3.5.43"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.1"
+  }
+}
