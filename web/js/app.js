@@ -47,6 +47,57 @@ const App = {
     const suggest = ref([]);
     const overview = computed(() => store.overview);
 
+    // 字型設定（預設值，從 localStorage 讀取）
+    const BASE_FONT_SIZE = 14; // 基準字體大小 (px)
+    const FONT_SIZE_MIN = 12;
+    const FONT_SIZE_MAX = 20;
+    const FONT_STEP = 1;
+
+    function loadSetting(key, defaultVal) {
+      try {
+        const v = localStorage.getItem(key);
+        return v !== null ? JSON.parse(v) : defaultVal;
+      } catch { return defaultVal; }
+    }
+    function saveSetting(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* ignore */ }
+    }
+
+    const fontSizeStep = ref(Math.max(0, Math.round((loadSetting('fontSize', BASE_FONT_SIZE) - BASE_FONT_SIZE) / FONT_STEP)));
+    const textColor = ref(loadSetting('textColor', '#1c2530'));
+
+    const currentFontSize = computed(() => BASE_FONT_SIZE + fontSizeStep.value * FONT_STEP);
+
+    function decreaseFont() {
+      if (fontSizeStep.value > 0) {
+        fontSizeStep.value--;
+        saveSetting('fontSize', currentFontSize.value);
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize.value + 'px');
+      }
+    }
+    function increaseFont() {
+      if (fontSizeStep.value < (FONT_SIZE_MAX - BASE_FONT_SIZE) / FONT_STEP) {
+        fontSizeStep.value++;
+        saveSetting('fontSize', currentFontSize.value);
+        document.documentElement.style.setProperty('--base-font-size', currentFontSize.value + 'px');
+      }
+    }
+    function resetFont() {
+      fontSizeStep.value = 0;
+      saveSetting('fontSize', BASE_FONT_SIZE);
+      document.documentElement.style.setProperty('--base-font-size', BASE_FONT_SIZE + 'px');
+    }
+    function changeTextColor(val) {
+      textColor.value = val;
+      saveSetting('textColor', val);
+      document.documentElement.style.setProperty('--text', val);
+    }
+    function resetTextColor() {
+      textColor.value = '#1c2530';
+      saveSetting('textColor', textColor.value);
+      document.documentElement.style.setProperty('--text', textColor.value);
+    }
+
     // 資料新鮮度（最後更新時間）
     const primaryFresh = computed(() => store.freshness?.primary ?? null);
     const freshText = computed(() => (primaryFresh.value?.asOf ? fmtTime(primaryFresh.value.asOf) : '—'));
@@ -93,7 +144,8 @@ const App = {
     });
 
     return { NAV, route, go, openStock, query, suggest, onQuery, pick, overview, title, ui, store, fmtPctRaw, toneClass, fmtTime, fmtAge, withBusy,
-      primaryFresh, freshText, ageText, stale, refreshData };
+      primaryFresh, freshText, ageText, stale, refreshData,
+      fontSizeStep, currentFontSize, textColor, decreaseFont, increaseFont, resetFont, changeTextColor, resetTextColor };
   },
   template: `
   <div class="layout">
@@ -143,6 +195,14 @@ const App = {
             </div>
           </div>
           <span v-if="ui.busy" class="tag accent">處理中…</span>
+          <!-- 字型控制 -->
+          <div class="font-controls" title="字型大小與顏色設定">
+            <button class="btn sm font-btn" @click="decreaseFont" :title="'縮小字體 (目前 ' + currentFontSize + 'px)'">A-</button>
+            <button class="btn sm font-btn" @click="increaseFont" :title="'放大字體 (目前 ' + currentFontSize + 'px)'">A+</button>
+            <button class="btn sm font-btn" @click="resetFont" :title="'重置字體大小'">⟲</button>
+            <input type="color" :value="textColor" @input="changeTextColor($event.target.value)" class="color-picker" title="選擇文字顏色" />
+            <button class="btn sm font-btn" @click="resetTextColor" :title="'重置文字顏色'">↺</button>
+          </div>
         </div>
       </header>
 
