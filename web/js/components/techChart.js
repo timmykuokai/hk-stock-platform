@@ -68,7 +68,13 @@ function rsi(closes, p = 14) {
 /* --------------------------- 座標與路徑工具 --------------------------- */
 
 function geom(dates, seriesValues, height, opts = {}) {
-  const W = 900, padL = opts.padL ?? 48, padR = 12, padT = 10, padB = 24;
+  // 響應式寬度：預設 900，可透過 opts.width 覆蓋（單位：px）
+  const W = opts.width ?? 900;
+  // 確保左邊距足夠容納標籤文字（最大約 44px for "10000"）
+  const padL = Math.max(opts.padL ?? 48, 44);
+  const padR = opts.padR ?? 12;
+  const padT = opts.padT ?? 10;
+  const padB = opts.padB ?? 24;
   const h = height - padT - padB;
   const w = W - padL - padR;
   const flat = seriesValues.flat().filter((v) => v != null && Number.isFinite(v));
@@ -79,12 +85,24 @@ function geom(dates, seriesValues, height, opts = {}) {
   const pad = (hi - lo) * 0.08;
   lo -= pad; hi += pad;
   const n = dates.length;
+  // xOf：0 ~ w 映射到 data index
   const xOf = (i) => padL + (n <= 1 ? 0 : (i / (n - 1)) * w);
+  // yOf：0 ~ h 映射到 value（y 軸反轉）
   const yOf = (v) => padT + ((hi - v) / (hi - lo)) * h;
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => ({ v: lo + (hi - lo) * (1 - t), y: padT + t * h }));
+  // 數值刻度（5 等分）
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => ({
+    v: lo + (hi - lo) * (1 - t),
+    y: padT + t * h
+  }));
+  // 底部日期標籤（均勻取樣）
   const xLabels = [];
   const step = Math.max(1, Math.floor(n / 6));
-  for (let i = 0; i < n; i += step) xLabels.push({ x: xOf(i), t: (dates[i] || '').slice(2, 10) });
+  for (let i = 0; i < n; i += step) {
+    xLabels.push({
+      x: xOf(i),
+      t: (dates[i] || '').slice(2, 10)
+    });
+  }
   return { W, padL, padT, padR, padB, w, h, xOf, yOf, ticks, xLabels, H: height };
 }
 

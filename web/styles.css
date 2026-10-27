@@ -420,16 +420,26 @@ table.data tbody tr.active { background: var(--surface-2); box-shadow: inset 3px
 .tech-chart-container {
   overflow: visible !important;
   position: relative;
+  min-height: 200px; /* 確保有足夠空間渲染 */
 }
 .tech-chart-container svg {
   overflow: visible !important;
   display: block;
   max-width: 100%;
   height: auto;
+  /* 確保 SVG 本身不被父容器裁切 */
+  shape-rendering: geometricPrecision;
 }
 .tech-chart-container svg text {
   overflow: visible;
+  /* 防止文字被父元素 hidden 裁切 */
+  paint-order: stroke fill;
 }
 .tech-chart-container .axis-label {
   overflow: visible;
+}
+/* 圖表演讀面板層級明確化 */
+.chart-info-panel {
+  position: relative;
+  z-index: 1;
 }
