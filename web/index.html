@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>港股篩選與分析平台 | HK Stock Screener</title>
   <link rel="stylesheet" href="./styles.css" />
+  <!-- 在 Vue 掛載前初始化字型設定 -->
+  <script>
+    (function() {
+      try {
+        const fontSize = JSON.parse(localStorage.getItem('fontSize'));
+        const textColor = JSON.parse(localStorage.getItem('textColor'));
+        if (fontSize) document.documentElement.style.setProperty('--base-font-size', fontSize + 'px');
+        if (textColor) document.documentElement.style.setProperty('--text', textColor);
+      } catch(e) {}
+    })();
+  </script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
 </head>
 <body>

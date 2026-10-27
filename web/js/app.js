@@ -138,14 +138,6 @@ const App = {
     });
 
     onMounted(async () => {
-      // 初始化字型設定（從 localStorage 讀取並套用）
-      const savedFontSize = loadSetting('fontSize', BASE_FONT_SIZE);
-      const savedTextColor = loadSetting('textColor', '#1c2530');
-      document.documentElement.style.setProperty('--base-font-size', savedFontSize + 'px');
-      document.documentElement.style.setProperty('--text', savedTextColor);
-      // 同步 fontSizeStep 以反映已設定的字體大小
-      fontSizeStep.value = Math.max(0, Math.round((savedFontSize - BASE_FONT_SIZE) / FONT_STEP));
-
       await store.init();
       setInterval(() => store.refreshOverview(), 5 * 60_000);
       setInterval(() => store.refreshFreshness(), 5 * 60_000);
