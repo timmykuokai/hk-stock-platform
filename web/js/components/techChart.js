@@ -175,9 +175,9 @@ export const BollingerChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ fmtPrice(t.v) }}</text>
         <path v-if="box.band" :d="box.band" fill="#1f5eff" fill-opacity="0.08" stroke="none" />
         <path :d="box.lowerP" fill="none" stroke="#9333ea" stroke-width="1.3" />
@@ -263,9 +263,9 @@ export const MaChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ fmtPrice(t.v) }}</text>
         <path v-for="(p,i) in box.maPaths" :key="'m'+i" :d="p" fill="none" :stroke="colors[i]" stroke-width="1.4" />
         <path :d="box.priceP" fill="none" stroke="#1f2937" stroke-width="1.6" />
@@ -317,9 +317,9 @@ export const VolumeChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ fmtCompact(t.v) }}</text>
         <rect v-for="(r,i) in box.barsRect" :key="i" :x="r.x" :y="r.y" :width="r.bw" :height="r.h" :fill="r.color" fill-opacity="0.7" />
         <text v-for="(x,i) in box.xLabels" :key="'x'+i" :x="x.x" :y="box.H-8" text-anchor="middle" font-size="11" fill="#8b95a3">{{ x.t }}</text>
@@ -402,11 +402,11 @@ export const MacdChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ fmt2(t.v) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(0)" :y2="box.yOf(0)" stroke="#cdd3dc" stroke-width="1" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(0)" :y2="box.yOf(0)" stroke="#cdd3dc" stroke-width="1" />
         <rect v-for="(r,i) in box.bars" :key="'b'+i" :x="r.x" :y="r.y" :width="r.bw" :height="r.h" :fill="r.color" />
         <path :d="box.difP" fill="none" stroke="#1f5eff" stroke-width="1.5" />
         <path :d="box.deaP" fill="none" stroke="#f59e0b" stroke-width="1.5" />
@@ -452,12 +452,12 @@ export const RsiChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(70)" :y2="box.yOf(70)" stroke="#d9333f" stroke-width="1" stroke-dasharray="5 4" opacity="0.7" />
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(30)" :y2="box.yOf(30)" stroke="#0f9960" stroke-width="1" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(70)" :y2="box.yOf(70)" stroke="#d9333f" stroke-width="1" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(30)" :y2="box.yOf(30)" stroke="#0f9960" stroke-width="1" stroke-dasharray="5 4" opacity="0.7" />
         <text :x="box.padL+4" :y="box.yOf(70)-4" font-size="10" fill="#d9333f">超買 70</text>
         <text :x="box.padL+4" :y="box.yOf(30)+12" font-size="10" fill="#0f9960">超賣 30</text>
         <path :d="box.rsiP" fill="none" stroke="#7c3aed" stroke-width="1.6" />
@@ -477,8 +477,7 @@ export const KdChart = defineComponent({
   name: 'KdChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const k = s.slowK || [];
@@ -502,12 +501,12 @@ export const KdChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(80)" :y2="box.yOf(80)" stroke="#d9333f" stroke-dasharray="5 4" opacity="0.7" />
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(20)" :y2="box.yOf(20)" stroke="#0f9960" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(80)" :y2="box.yOf(80)" stroke="#d9333f" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(20)" :y2="box.yOf(20)" stroke="#0f9960" stroke-dasharray="5 4" opacity="0.7" />
         <path :d="box.dP" fill="none" stroke="#f59e0b" stroke-width="1.5" />
         <path :d="box.kP" fill="none" stroke="#1f5eff" stroke-width="1.5" />
         <text v-for="(x,i) in box.xLabels" :key="'x'+i" :x="x.x" :y="box.H-8" text-anchor="middle" font-size="11" fill="#8b95a3">{{ x.t }}</text>
@@ -558,8 +557,7 @@ export const ObvChart = defineComponent({
     divergences: { type: Array, default: () => [] }, height: { type: Number, default: 260 },
   },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const v = s.obv || [];
@@ -596,9 +594,9 @@ export const ObvChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
         <path :d="box.vP" fill="none" stroke="#1f5eff" stroke-width="1.5" />
         <path :d="box.maP" fill="none" stroke="#f59e0b" stroke-width="1.4" stroke-dasharray="4 3" />
@@ -652,8 +650,7 @@ export const MfiChart = defineComponent({
   name: 'MfiChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const v = s.mfi || [];
@@ -676,12 +673,12 @@ export const MfiChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(80)" :y2="box.yOf(80)" stroke="#d9333f" stroke-dasharray="5 4" opacity="0.7" />
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(20)" :y2="box.yOf(20)" stroke="#0f9960" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(80)" :y2="box.yOf(80)" stroke="#d9333f" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(20)" :y2="box.yOf(20)" stroke="#0f9960" stroke-dasharray="5 4" opacity="0.7" />
         <path :d="box.vP" fill="none" stroke="#7c3aed" stroke-width="1.6" />
         <text v-for="(x,i) in box.xLabels" :key="'x'+i" :x="x.x" :y="box.H-8" text-anchor="middle" font-size="11" fill="#8b95a3">{{ x.t }}</text>
       </g>
@@ -728,8 +725,7 @@ export const AdxChart = defineComponent({
   name: 'AdxChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const v = s.adx || [];
@@ -752,11 +748,11 @@ export const AdxChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.refY" :y2="box.refY" stroke="#d97706" stroke-dasharray="5 4" opacity="0.7" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.refY" :y2="box.refY" stroke="#d97706" stroke-dasharray="5 4" opacity="0.7" />
         <path :d="box.vP" fill="none" stroke="#1f5eff" stroke-width="1.6" />
         <text v-for="(x,i) in box.xLabels" :key="'x'+i" :x="x.x" :y="box.H-8" text-anchor="middle" font-size="11" fill="#8b95a3">{{ x.t }}</text>
       </g>
@@ -803,8 +799,7 @@ export const CciChart = defineComponent({
   name: 'CciChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const v = s.cci || [];
@@ -827,12 +822,12 @@ export const CciChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.upY" :y2="box.upY" stroke="#d9333f" stroke-dasharray="5 4" opacity="0.6" />
-        <line :x1="box.padL" :x2="W-12" :y1="box.dnY" :y2="box.dnY" stroke="#0f9960" stroke-dasharray="5 4" opacity="0.6" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.upY" :y2="box.upY" stroke="#d9333f" stroke-dasharray="5 4" opacity="0.6" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.dnY" :y2="box.dnY" stroke="#0f9960" stroke-dasharray="5 4" opacity="0.6" />
         <path :d="box.vP" fill="none" stroke="#9333ea" stroke-width="1.6" />
         <text v-for="(x,i) in box.xLabels" :key="'x'+i" :x="x.x" :y="box.H-8" text-anchor="middle" font-size="11" fill="#8b95a3">{{ x.t }}</text>
       </g>
@@ -879,8 +874,7 @@ export const BiasChart = defineComponent({
   name: 'BiasChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const b6 = s.bias6 || [], b12 = s.bias12 || [], b24 = s.bias24 || [];
@@ -903,11 +897,11 @@ export const BiasChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(0) }}</text>
-        <line :x1="box.padL" :x2="W-12" :y1="box.yOf(0)" :y2="box.yOf(0)" stroke="#cdd3dc" stroke-width="1" />
+        <line :x1="box.padL" :x2="box.W-12" :y1="box.yOf(0)" :y2="box.yOf(0)" stroke="#cdd3dc" stroke-width="1" />
         <path :d="box.p6" fill="none" stroke="#f59e0b" stroke-width="1.4" />
         <path :d="box.p12" fill="none" stroke="#1f5eff" stroke-width="1.4" />
         <path :d="box.p24" fill="none" stroke="#9333ea" stroke-width="1.4" />
@@ -956,8 +950,7 @@ export const DrawdownChart = defineComponent({
   name: 'DrawdownChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const dd = (props.risk && props.risk.drawdown) || { dates: [], values: [] };
       const d = dd.dates || [];
       const v = dd.values || [];
@@ -983,9 +976,9 @@ export const DrawdownChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ (t.v * 100).toFixed(0) }}%</text>
         <path :d="box.area" fill="#d9333f" fill-opacity="0.15" stroke="none" />
         <path :d="box.lineP" fill="none" stroke="#d9333f" stroke-width="1.5" />
@@ -1034,8 +1027,7 @@ export const AtrChart = defineComponent({
   name: 'AtrChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const box = computed(() => {
+        const box = computed(() => {
       const s = props.series || {};
       const d = s.dates || [];
       const atr = s.atr14 || [];
@@ -1063,9 +1055,9 @@ export const AtrChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(2) }}</text>
         <path :d="box.atrP" fill="none" stroke="#0ea5e9" stroke-width="1.6" />
         <text v-for="(x,i) in box.xLabels" :key="'x'+i" :x="x.x" :y="box.H-8" text-anchor="middle" font-size="11" fill="#8b95a3">{{ x.t }}</text>
@@ -1114,8 +1106,7 @@ export const DonchianChart = defineComponent({
   name: 'DonchianChart',
   props: { series: { type: Object, default: () => ({}) }, bars: { type: Array, default: () => [] }, risk: { type: Object, default: null }, height: { type: Number, default: 260 } },
   setup(props) {
-    const W = 900;
-    const P = 20;
+        const P = 20;
     const box = computed(() => {
       const bars = props.bars;
       if (!bars || bars.length < P + 1) return null;
@@ -1148,9 +1139,9 @@ export const DonchianChart = defineComponent({
     
   },
   template: `
-    <svg v-if="box" :viewBox="'0 0 ' + W + ' ' + box.H" style="width:100%;height:auto;display:block">
+    <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
       <g>
-        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
+        <line v-for="(t,i) in box.ticks" :key="'t'+i" :x1="box.padL" :x2="box.W-12" :y1="t.y" :y2="t.y" stroke="#eceef2" />
         <text v-for="(t,i) in box.ticks" :key="'tl'+i" :x="box.padL-8" :y="t.y+4" text-anchor="end" font-size="11" fill="#8b95a3">{{ t.v.toFixed(2) }}</text>
         <path :d="box.band" fill="#1f5eff" fill-opacity="0.08" stroke="none" />
         <path :d="box.upP" fill="none" stroke="#d9333f" stroke-width="1.2" stroke-dasharray="4 3" />
