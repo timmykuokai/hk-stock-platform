@@ -8,7 +8,7 @@
  * 所有序列皆由傳入的 bars（OHLCV）即時計算，後端無需改動。
  */
 import { defineComponent, computed, ref } from '../../vendor/vue.esm-browser.prod.js';
-import { fmtPrice } from '../format.js';
+import { fmtPrice, fmtCompact } from '../format.js';
 import { getChartInfo } from './chartInfo.js';
 
 const UP = '#d9333f';     // 漲：紅
@@ -259,8 +259,8 @@ export const MaChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
-    return { box, info, signalClass, fmtPrice };
-    
+    return { box, info, signalClass, fmtPrice, colors };
+
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -313,8 +313,8 @@ export const VolumeChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
-    return { box, info, signalClass, fmtPrice };
-    
+    return { box, info, signalClass, fmtPrice, fmtCompact };
+
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
@@ -326,8 +326,8 @@ export const VolumeChart = defineComponent({
       </g>
     </svg>
     <div class="legend" style="margin-top:6px">
-      <span><i :style="{background:UP}"></i>上漲日成交量</span>
-      <span><i :style="{background:DOWN}"></i>下跌日成交量</span>
+      <span><i style="background:#d9333f"></i>上漲日成交量</span>
+      <span><i style="background:#0f9960"></i>下跌日成交量</span>
       <span class="muted">放量突破／縮量盤整為常見訊號</span>
     </div>
     <!-- 圖表解讀面板 -->
@@ -390,7 +390,8 @@ export const MacdChart = defineComponent({
     });
     const showInfo = ref(false);
     const info = getChartInfo('macd');
-    
+    const fmt2 = (v) => (v == null ? '' : v.toFixed(2));
+
     const signalClass = (s) => {
       if (!s) return '';
       if (s.includes('超买') || s.includes('强势') || s.includes('买入') || s.includes('向上') || s.includes('偏强')) return 'up';
@@ -398,8 +399,8 @@ export const MacdChart = defineComponent({
       if (s.includes('警示') || s.includes('预警') || s.includes('减弱') || s.includes('衰竭')) return 'warn';
       return '';
     };
-    return { box, info, signalClass, fmtPrice };
-    
+    return { box, info, signalClass, fmtPrice, fmt2 };
+
   },
   template: `
     <svg v-if="box" :viewBox="'0 0 ' + box.W + ' ' + box.H" style="width:100%;height:auto;display:block">
